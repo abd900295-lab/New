@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="الاتصالات الإدارية" />
+  <title>الاتصالات الإدارية</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Cairo', 'Inter', 'system-ui', 'sans-serif'],
+            mono: ['Inter', 'monospace']
+          },
+          colors: {
+            navy: {
+              50: '#f0f4f8',
+              100: '#d9e2ec',
+              200: '#bcccdc',
+              600: '#1e3a8a',
+              700: '#152c5b',
+              800: '#0f2147',
+              900: '#0a192f',
+              950: '#061020'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      font-family: 'Cairo', 'Inter', sans-serif;
+      background-color: #f4f7fb;
+      color: #0a192f;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Prevent iOS auto-zoom on inputs by keeping font-size >= 16px on mobile */
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+
+    .a4-sheet {
+      background: #ffffff;
+      width: 100%;
+      max-width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      padding: 12mm;
+      box-shadow: 0 8px 24px rgba(10, 25, 47, 0.08);
+      border: 1px solid #d9e2ec;
+      border-radius: 12px;
+    }
+
+    @page {
+      size: A4 portrait;
+      margin: 10mm;
+    }
+
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-only-container {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .a4-sheet {
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        max-width: 100% !important;
+        min-height: auto !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Header (Navy & White, Mobile Optimized) -->
+  <header class="bg-navy-900 text-white shadow-md sticky top-0 z-30 no-print">
+    <div class="max-w-5xl mx-auto px-3 sm:px-6">
+      <div class="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <!-- Title -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+            <h1 class="text-base sm:text-lg font-extrabold text-white">الاتصالات الإدارية</h1>
+          </div>
+
+          <!-- Mobile Quick Share & Print Icons -->
+          <div class="flex sm:hidden items-center gap-1.5">
+            <button
+              id="btnQuickPrintMobile"
+              type="button"
+              class="px-2.5 py-1.5 rounded-lg bg-navy-700 text-white text-xs font-bold border border-white/15"
+            >
+              طباعة A4
+            </button>
+            <button
+              id="btnOpenShareMobile"
+              type="button"
+              class="px-2.5 py-1.5 rounded-lg bg-sky-500 text-navy-950 text-xs font-extrabold"
+            >
+              مشاركة
+            </button>
+          </div>
+        </div>
+
+        <!-- Primary Action Buttons (Side-by-side on Mobile & Desktop) -->
+        <div class="grid grid-cols-2 sm:flex items-center gap-2">
+          <button
+            id="btnOpenAddModal"
+            type="button"
+            class="flex items-center justify-center gap-1.5 bg-white hover:bg-navy-50 text-navy-900 font-extrabold text-xs sm:text-sm px-3.5 py-2.5 rounded-xl shadow-xs transition active:scale-95"
+          >
+            <svg class="w-4 h-4 text-navy-800 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+            </svg>
+            <span>إضافة معاملة جديدة</span>
+          </button>
+
+          <button
+            id="btnOpenNotesModal"
+            type="button"
+            class="flex items-center justify-center gap-1.5 bg-navy-700 hover:bg-navy-600 text-white font-extrabold text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-white/20 shadow-xs transition active:scale-95"
+          >
+            <svg class="w-4 h-4 text-sky-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+            <span>إضافة ملاحظات</span>
+          </button>
+
+          <button
+            id="btnQuickPrintA4"
+            type="button"
+            class="hidden sm:inline-flex items-center gap-1.5 bg-navy-800 hover:bg-navy-700 text-white font-bold text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-white/15 transition"
+          >
+            <span>طباعة A4</span>
+          </button>
+
+          <button
+            id="btnOpenShareModal"
+            type="button"
+            class="hidden sm:inline-flex items-center gap-1.5 bg-sky-500 hover:bg-sky-400 text-navy-950 font-extrabold text-xs sm:text-sm px-3.5 py-2.5 rounded-xl transition"
+          >
+            <span>مشاركة</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="grid grid-cols-4 sm:flex items-center gap-1 border-t border-white/10 pt-1 text-center" aria-label="التنقل">
+        <button
+          type="button"
+          data-tab="active"
+          class="tab-btn flex items-center justify-center gap-1.5 py-2.5 px-2 sm:px-4 text-xs sm:text-sm font-bold border-b-2 border-white text-white bg-white/10 rounded-t-lg transition"
+        >
+          <span>المعاملات</span>
+          <span id="badgeActiveCount" class="text-[11px] px-1.5 py-0.2 rounded-full bg-white text-navy-900 font-mono font-extrabold">0</span>
+        </button>
+
+        <button
+          type="button"
+          data-tab="archive"
+          class="tab-btn flex items-center justify-center gap-1.5 py-2.5 px-2 sm:px-4 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-navy-100 hover:text-white rounded-t-lg transition"
+        >
+          <span>الأرشيف</span>
+          <span id="badgeArchiveCount" class="text-[11px] px-1.5 py-0.2 rounded-full bg-navy-700 text-white font-mono font-bold">0</span>
+        </button>
+
+        <button
+          type="button"
+          data-tab="notes"
+          class="tab-btn flex items-center justify-center gap-1.5 py-2.5 px-2 sm:px-4 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-navy-100 hover:text-white rounded-t-lg transition"
+        >
+          <span>الملاحظات</span>
+          <span id="badgeNotesCount" class="text-[11px] px-1.5 py-0.2 rounded-full bg-navy-700 text-white font-mono font-bold">0</span>
+        </button>
+
+        <button
+          type="button"
+          data-tab="report"
+          class="tab-btn flex items-center justify-center gap-1.5 py-2.5 px-2 sm:px-4 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-navy-100 hover:text-white rounded-t-lg transition"
+        >
+          <span>تقرير A4</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-5xl w-full mx-auto px-3 sm:px-6 py-4 space-y-4">
+
+    <!-- Filter Bar (Compact & Mobile Friendly) -->
+    <div id="filterBar" class="bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs grid grid-cols-1 sm:grid-cols-3 gap-2.5 no-print">
+      <input
+        id="searchInput"
+        type="text"
+        placeholder="بحث برقم المعاملة أو الإجراء..."
+        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-700"
+      />
+
+      <select id="filterDept" class="w-full bg-slate-50 border border-slate-200 text-navy-900 font-bold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-navy-700">
+        <option value="all">جميع الأقسام</option>
+        <option value="قسم الاتصالات الإدارية">قسم الاتصالات الإدارية</option>
+        <option value="قسم العمليات">قسم العمليات</option>
+        <option value="قسم الوقاية من الحريق">قسم الوقاية من الحريق</option>
+        <option value="قسم التدريب">قسم التدريب</option>
+        <option value="قسم التموين">قسم التموين</option>
+      </select>
+
+      <select id="filterEmployee" class="w-full bg-slate-50 border border-slate-200 text-navy-900 font-bold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-navy-700">
+        <option value="all">جميع الموظفين</option>
+        <option value="عبدالرحمن الغامدي">عبدالرحمن الغامدي</option>
+        <option value="عبدالرحيم الجعيد">عبدالرحيم الجعيد</option>
+        <option value="علي الحارثي">علي الحارثي</option>
+      </select>
+    </div>
+
+    <!-- TAB 1: ACTIVE TRANSACTIONS -->
+    <section id="viewActive" class="space-y-3 no-print">
+      <!-- Mobile Cards List (< sm) -->
+      <div id="activeMobileCards" class="space-y-2.5 sm:hidden"></div>
+
+      <!-- Desktop Table (>= sm) -->
+      <div class="hidden sm:block bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+        <table class="w-full text-right border-collapse">
+          <thead>
+            <tr class="bg-navy-900 text-white text-xs font-bold">
+              <th class="py-3 px-4">رقم المعاملة</th>
+              <th class="py-3 px-4">التاريخ</th>
+              <th class="py-3 px-4">القسم</th>
+              <th class="py-3 px-4">الإجراء المتخذ عليها</th>
+              <th class="py-3 px-4">الموظف المسؤول عنها</th>
+              <th class="py-3 px-4 text-left">إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="activeTableBody" class="divide-y divide-slate-200 text-sm"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 2: ARCHIVE -->
+    <section id="viewArchive" class="hidden space-y-3 no-print">
+      <!-- Mobile Cards List (< sm) -->
+      <div id="archiveMobileCards" class="space-y-2.5 sm:hidden"></div>
+
+      <!-- Desktop Table (>= sm) -->
+      <div class="hidden sm:block bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+        <table class="w-full text-right border-collapse">
+          <thead>
+            <tr class="bg-navy-800 text-white text-xs font-bold">
+              <th class="py-3 px-4">رقم المعاملة</th>
+              <th class="py-3 px-4">التاريخ</th>
+              <th class="py-3 px-4">القسم</th>
+              <th class="py-3 px-4">الإجراء المتخذ عليها</th>
+              <th class="py-3 px-4">الموظف المسؤول عنها</th>
+              <th class="py-3 px-4 text-left">إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="archiveTableBody" class="divide-y divide-slate-200 text-sm"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 3: NOTES LIST (الملاحظات المبسطة) -->
+    <section id="viewNotes" class="hidden space-y-3 no-print">
+      <div id="notesListContainer" class="space-y-2.5"></div>
+    </section>
+
+    <!-- TAB 4: A4 REPORT -->
+    <section id="viewReport" class="hidden print-only-container space-y-3">
+      <div class="bg-white p-3 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-2 no-print">
+        <select id="reportScopeSelect" class="bg-slate-50 border border-slate-200 text-navy-900 font-bold rounded-xl px-3 py-2">
+          <option value="all">جميع المعاملات</option>
+          <option value="active">المعاملات الجارية فقط</option>
+          <option value="archived">الأرشيف فقط</option>
+        </select>
+
+        <button
+          id="btnTriggerBrowserPrint"
+          type="button"
+          class="bg-navy-900 hover:bg-navy-800 text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow transition"
+        >
+          طباعة ورق A4 الآن
+        </button>
+      </div>
+
+      <div class="a4-sheet space-y-6">
+        <!-- A4 Header -->
+        <div class="border-b-2 border-navy-900 pb-3 flex items-center justify-between">
+          <div>
+            <h2 class="text-base sm:text-lg font-extrabold text-navy-900">كشف متابعة وحفظ المعاملات — الاتصالات الإدارية</h2>
+          </div>
+          <div class="text-xs font-bold text-navy-900">
+            العدد: <span id="reportPrintCount" class="font-mono">0</span>
+          </div>
+        </div>
+
+        <!-- A4 Transactions Table -->
+        <div>
+          <table class="w-full text-right border-collapse border border-navy-900">
+            <thead>
+              <tr class="bg-navy-900 text-white text-xs font-bold">
+                <th class="border border-navy-800 py-2 px-2 text-center w-8">م</th>
+                <th class="border border-navy-800 py-2 px-2.5">رقم المعاملة</th>
+                <th class="border border-navy-800 py-2 px-2.5">التاريخ</th>
+                <th class="border border-navy-800 py-2 px-2.5">القسم</th>
+                <th class="border border-navy-800 py-2 px-2.5">الإجراء المتخذ عليها</th>
+                <th class="border border-navy-800 py-2 px-2.5">الموظف المسؤول عنها</th>
+                <th class="border border-navy-800 py-2 px-2 text-center">الحالة</th>
+              </tr>
+            </thead>
+            <tbody id="reportTableBody" class="text-xs text-navy-950"></tbody>
+          </table>
+        </div>
+
+        <!-- A4 Notes Section (shown if there are notes) -->
+        <div id="reportNotesWrapper" class="hidden space-y-2 pt-2">
+          <h3 class="text-xs font-extrabold text-navy-900 border-b border-navy-900 pb-1">سجل الملاحظات</h3>
+          <table class="w-full text-right border-collapse border border-navy-900">
+            <thead>
+              <tr class="bg-navy-100 text-navy-900 text-xs font-bold">
+                <th class="border border-navy-800 py-1.5 px-2.5">الملاحظة</th>
+                <th class="border border-navy-800 py-1.5 px-2.5 w-44">كاتب الملاحظة</th>
+              </tr>
+            </thead>
+            <tbody id="reportNotesBody" class="text-xs text-navy-950"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL 1: ADD / EDIT TRANSACTION (بسيط ومباشر) -->
+  <div id="modalTxForm" class="fixed inset-0 z-50 hidden bg-navy-950/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 no-print">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="bg-navy-900 text-white px-5 py-3.5 flex items-center justify-between">
+        <h3 id="modalFormTitle" class="text-sm sm:text-base font-bold">إضافة معاملة جديدة</h3>
+        <button type="button" id="btnCloseModal" class="text-navy-200 hover:text-white p-1">✕</button>
+      </div>
+
+      <form id="txForm" class="p-5 space-y-3.5">
+        <input type="hidden" id="editIndex" value="-1" />
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-navy-900 mb-1">رقم المعاملة</label>
+            <input
+              id="inputTxNumber"
+              type="text"
+              required
+              placeholder="اكتب الرقم"
+              class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-700"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-navy-900 mb-1">التاريخ</label>
+            <input
+              id="inputTxDate"
+              type="text"
+              required
+              placeholder="اكتب التاريخ"
+              class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-700"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-navy-900 mb-1">القسم</label>
+          <select
+            id="inputTxDept"
+            required
+            class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-700"
+          >
+            <option value="قسم الاتصالات الإدارية">قسم الاتصالات الإدارية</option>
+            <option value="قسم العمليات">قسم العمليات</option>
+            <option value="قسم الوقاية من الحريق">قسم الوقاية من الحريق</option>
+            <option value="قسم التدريب">قسم التدريب</option>
+            <option value="قسم التموين">قسم التموين</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-navy-900 mb-1">الإجراء المتخذ عليها</label>
+          <textarea
+            id="inputTxAction"
+            rows="2"
+            required
+            placeholder="اكتب الإجراء المتخذ..."
+            class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-700"
+          ></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-navy-900 mb-1">الموظف المسؤول عنها</label>
+          <select
+            id="inputTxEmployee"
+            required
+            class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-700"
+          >
+            <option value="عبدالرحمن الغامدي">عبدالرحمن الغامدي</option>
+            <option value="عبدالرحيم الجعيد">عبدالرحيم الجعيد</option>
+            <option value="علي الحارثي">علي الحارثي</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5 pt-2">
+          <button
+            type="button"
+            id="btnCancelModal"
+            class="w-full py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold hover:bg-slate-100"
+          >
+            إلغاء
+          </button>
+          <button
+            type="submit"
+            class="w-full py-2.5 rounded-xl bg-navy-900 hover:bg-navy-800 text-white font-bold shadow"
+          >
+            حفظ
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: SIMPLE ADD NOTE (فقط كتابة الملاحظة ومين كاتب الملاحظة) -->
+  <div id="modalNotes" class="fixed inset-0 z-50 hidden bg-navy-950/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 no-print">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="bg-navy-900 text-white px-5 py-3.5 flex items-center justify-between">
+        <h3 class="text-sm sm:text-base font-bold">إضافة ملاحظات</h3>
+        <button type="button" id="btnCloseNotesModal" class="text-navy-200 hover:text-white p-1">✕</button>
+      </div>
+
+      <form id="notesForm" class="p-5 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-navy-900 mb-1">الملاحظة</label>
+          <textarea
+            id="inputNoteText"
+            rows="3"
+            required
+            placeholder="اكتب الملاحظة..."
+            class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-700"
+          ></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-navy-900 mb-1">كاتب الملاحظة</label>
+          <select
+            id="inputNoteAuthor"
+            required
+            class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-700"
+          >
+            <option value="عبدالرحمن الغامدي">عبدالرحمن الغامدي</option>
+            <option value="عبدالرحيم الجعيد">عبدالرحيم الجعيد</option>
+            <option value="علي الحارثي">علي الحارثي</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5 pt-2">
+          <button
+            type="button"
+            id="btnCancelNotesModal"
+            class="w-full py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold hover:bg-slate-100"
+          >
+            إلغاء
+          </button>
+          <button
+            type="submit"
+            class="w-full py-2.5 rounded-xl bg-navy-900 hover:bg-navy-800 text-white font-bold shadow"
+          >
+            حفظ الملاحظة
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 3: SHARE WITH SAVED DATA -->
+  <div id="modalShareData" class="fixed inset-0 z-50 hidden bg-navy-950/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 no-print">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="bg-navy-900 text-white px-5 py-3.5 flex items-center justify-between">
+        <h3 class="text-sm sm:text-base font-bold">مشاركة الصفحة مع البيانات</h3>
+        <button type="button" id="btnCloseShareModal" class="text-navy-200 hover:text-white p-1">✕</button>
+      </div>
+
+      <div class="p-5 space-y-4">
+        <button
+          id="btnDownloadAppWithData"
+          type="button"
+          class="w-full bg-navy-900 hover:bg-navy-800 text-white font-bold text-sm py-3 px-4 rounded-xl shadow transition"
+        >
+          تنزيل الصفحة محمّلة بالبيانات (HTML)
+        </button>
+
+        <div class="border-t border-slate-200 pt-3 space-y-2">
+          <button
+            id="btnCopySyncCode"
+            type="button"
+            class="w-full bg-navy-50 hover:bg-navy-100 text-navy-900 font-bold text-xs py-2.5 px-3 rounded-xl border border-navy-200 transition"
+          >
+            نسخ كود البيانات لإرساله لزميل
+          </button>
+
+          <div class="flex gap-2 pt-1">
+            <input
+              id="inputPasteSyncCode"
+              type="text"
+              placeholder="الصق كود البيانات هنا..."
+              class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-navy-900"
+            />
+            <button
+              id="btnApplySyncCode"
+              type="button"
+              class="bg-navy-800 text-white font-bold text-xs px-4 py-2 rounded-xl shrink-0"
+            >
+              تطبيق
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toastBox" class="fixed bottom-4 left-4 right-4 sm:right-auto z-50 space-y-2 pointer-events-none no-print"></div>
+
+  <script>
+    const STORAGE_KEY_TX = 'navy_clean_tx_v5';
+    const STORAGE_KEY_NOTES = 'navy_clean_notes_v5';
+
+    /*__EMBEDDED_DATA_START__*/
+    const EMBEDDED_STATE = null;
+    /*__EMBEDDED_DATA_END__*/
+
+    let transactions = [];
+    let notesList = [];
+    let currentTab = 'active';
+
+    function encodeStateBase64(obj) {
+      return btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
+    }
+
+    function decodeStateBase64(str) {
+      return JSON.parse(decodeURIComponent(escape(atob(str.trim()))));
+    }
+
+    function loadData() {
+      try {
+        const savedTx = localStorage.getItem(STORAGE_KEY_TX);
+        const savedNotes = localStorage.getItem(STORAGE_KEY_NOTES);
+        if (savedTx || savedNotes) {
+          transactions = savedTx ? JSON.parse(savedTx) : [];
+          notesList = savedNotes ? JSON.parse(savedNotes) : [];
+          return;
+        }
+      } catch (e) {}
+
+      if (EMBEDDED_STATE && typeof EMBEDDED_STATE === 'object') {
+        transactions = Array.isArray(EMBEDDED_STATE.transactions) ? EMBEDDED_STATE.transactions : [];
+        notesList = Array.isArray(EMBEDDED_STATE.notesList) ? EMBEDDED_STATE.notesList : [];
+        saveData();
+        return;
+      }
+
+      transactions = [];
+      notesList = [];
+    }
+
+    function saveData() {
+      try {
+        localStorage.setItem(STORAGE_KEY_TX, JSON.stringify(transactions));
+        localStorage.setItem(STORAGE_KEY_NOTES, JSON.stringify(notesList));
+      } catch (e) {}
+    }
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById('toastBox');
+      const el = document.createElement('div');
+      el.className = 'pointer-events-auto bg-navy-900 text-white px-4 py-3 rounded-xl shadow-lg text-xs sm:text-sm font-bold text-center sm:text-right';
+      el.textContent = msg;
+      box.appendChild(el);
+      setTimeout(() => el.remove(), 2200);
+    }
+
+    function getFilteredTransactions(archivedState) {
+      const q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+      const dept = document.getElementById('filterDept').value;
+      const emp = document.getElementById('filterEmployee').value;
+
+      return transactions
+        .map((t, index) => ({ ...t, _index: index }))
+        .filter(t => {
+          if (typeof archivedState === 'boolean' && Boolean(t.archived) !== archivedState) return false;
+          if (dept !== 'all' && t.dept !== dept) return false;
+          if (emp !== 'all' && t.employee !== emp) return false;
+          if (q) {
+            const hay = `${t.txNumber} ${t.date} ${t.dept} ${t.actionTaken} ${t.employee}`.toLowerCase();
+            if (!hay.includes(q)) return false;
+          }
+          return true;
+        });
+    }
+
+    function renderBadges() {
+      document.getElementById('badgeActiveCount').textContent = transactions.filter(t => !t.archived).length;
+      document.getElementById('badgeArchiveCount').textContent = transactions.filter(t => t.archived).length;
+      document.getElementById('badgeNotesCount').textContent = notesList.length;
+    }
+
+    function renderTransactionsSection(isArchived) {
+      const list = getFilteredTransactions(isArchived);
+      const mobileContainer = document.getElementById(isArchived ? 'archiveMobileCards' : 'activeMobileCards');
+      const tableBody = document.getElementById(isArchived ? 'archiveTableBody' : 'activeTableBody');
+
+      if (list.length === 0) {
+        const emptyMsg = isArchived ? 'لا توجد معاملات في الأرشيف' : 'لا توجد معاملات مسجلة';
+        mobileContainer.innerHTML = `<div class="bg-white rounded-2xl p-8 text-center text-slate-400 text-sm font-bold border border-slate-200">${emptyMsg}</div>`;
+        tableBody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-sm font-bold">${emptyMsg}</td></tr>`;
+        return;
+      }
+
+      // Mobile Cards
+      mobileContainer.innerHTML = list.map(t => `
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-2xs space-y-2.5">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <span class="font-mono font-extrabold text-base text-navy-900">#${escapeHtml(t.txNumber)}</span>
+            <span class="font-mono text-xs font-bold text-slate-500">${escapeHtml(t.date)}</span>
+          </div>
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-bold text-navy-800 bg-navy-50 px-2.5 py-1 rounded-lg">${escapeHtml(t.dept)}</span>
+            <span class="font-bold text-navy-900">${escapeHtml(t.employee)}</span>
+          </div>
+          <p class="text-sm font-semibold text-navy-950 bg-slate-50 p-2.5 rounded-xl">${escapeHtml(t.actionTaken)}</p>
+          <div class="flex items-center justify-end gap-2 pt-1">
+            <button type="button" data-tx-action="edit" data-idx="${t._index}" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-navy-900">تعديل</button>
+            ${
+              !isArchived
+                ? `<button type="button" data-tx-action="archive" data-idx="${t._index}" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-navy-900 text-white">حفظ بالأرشيف</button>`
+                : `<button type="button" data-tx-action="restore" data-idx="${t._index}" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-navy-100 text-navy-900">استرجاع</button>`
+            }
+            <button type="button" data-tx-action="delete" data-idx="${t._index}" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-rose-600 bg-rose-50">حذف</button>
+          </div>
+        </div>
+      `).join('');
+
+      // Desktop Table
+      tableBody.innerHTML = list.map(t => `
+        <tr class="hover:bg-navy-50/40 transition">
+          <td class="py-3 px-4 font-mono font-extrabold text-navy-900">${escapeHtml(t.txNumber)}</td>
+          <td class="py-3 px-4 font-mono text-xs font-bold text-slate-600">${escapeHtml(t.date)}</td>
+          <td class="py-3 px-4"><span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-navy-50 text-navy-800">${escapeHtml(t.dept)}</span></td>
+          <td class="py-3 px-4 font-semibold text-navy-900">${escapeHtml(t.actionTaken)}</td>
+          <td class="py-3 px-4 font-bold text-navy-900">${escapeHtml(t.employee)}</td>
+          <td class="py-3 px-4 text-left whitespace-nowrap">
+            <div class="inline-flex items-center gap-1.5">
+              <button type="button" data-tx-action="edit" data-idx="${t._index}" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 text-navy-900">تعديل</button>
+              ${
+                !isArchived
+                  ? `<button type="button" data-tx-action="archive" data-idx="${t._index}" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-navy-900 hover:bg-navy-800 text-white">حفظ بالأرشيف</button>`
+                  : `<button type="button" data-tx-action="restore" data-idx="${t._index}" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-navy-100 text-navy-900">استرجاع</button>`
+              }
+              <button type="button" data-tx-action="delete" data-idx="${t._index}" class="px-2 py-1 rounded-lg text-xs font-bold text-rose-600 hover:bg-rose-50">حذف</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderNotesSection() {
+      const container = document.getElementById('notesListContainer');
+      if (notesList.length === 0) {
+        container.innerHTML = `<div class="bg-white rounded-2xl p-8 text-center text-slate-400 text-sm font-bold border border-slate-200">لا توجد ملاحظات مسجلة</div>`;
+        return;
+      }
+
+      container.innerHTML = notesList.map((n, idx) => `
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-2xs flex items-start justify-between gap-3">
+          <div class="space-y-1.5">
+            <p class="text-sm font-bold text-navy-950 leading-relaxed">${escapeHtml(n.text)}</p>
+            <span class="inline-block text-xs font-bold text-navy-800 bg-navy-50 px-2.5 py-0.5 rounded-lg">
+              كاتب الملاحظة: ${escapeHtml(n.author)}
+            </span>
+          </div>
+          <button
+            type="button"
+            data-note-delete="${idx}"
+            class="text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 px-2.5 py-1.5 rounded-lg shrink-0"
+          >
+            حذف
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function renderA4Report() {
+      const scope = document.getElementById('reportScopeSelect').value;
+      const flag = scope === 'active' ? false : scope === 'archived' ? true : undefined;
+      const list = getFilteredTransactions(flag);
+
+      document.getElementById('reportPrintCount').textContent = list.length;
+      const tbody = document.getElementById('reportTableBody');
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="border border-slate-300 py-6 text-center text-slate-400 font-bold">لا توجد معاملات</td></tr>`;
+      } else {
+        tbody.innerHTML = list.map((t, i) => `
+          <tr>
+            <td class="border border-slate-300 py-2 px-2 text-center font-mono font-bold">${i + 1}</td>
+            <td class="border border-slate-300 py-2 px-2.5 font-mono font-extrabold">${escapeHtml(t.txNumber)}</td>
+            <td class="border border-slate-300 py-2 px-2.5 font-mono">${escapeHtml(t.date)}</td>
+            <td class="border border-slate-300 py-2 px-2.5 font-bold">${escapeHtml(t.dept)}</td>
+            <td class="border border-slate-300 py-2 px-2.5">${escapeHtml(t.actionTaken)}</td>
+            <td class="border border-slate-300 py-2 px-2.5 font-bold">${escapeHtml(t.employee)}</td>
+            <td class="border border-slate-300 py-2 px-2 text-center font-bold">${t.archived ? 'أرشيف' : 'جارية'}</td>
+          </tr>
+        `).join('');
+      }
+
+      const notesWrapper = document.getElementById('reportNotesWrapper');
+      const notesBody = document.getElementById('reportNotesBody');
+      if (notesList.length > 0) {
+        notesWrapper.classList.remove('hidden');
+        notesBody.innerHTML = notesList.map(n => `
+          <tr>
+            <td class="border border-slate-300 py-1.5 px-2.5">${escapeHtml(n.text)}</td>
+            <td class="border border-slate-300 py-1.5 px-2.5 font-bold">${escapeHtml(n.author)}</td>
+          </tr>
+        `).join('');
+      } else {
+        notesWrapper.classList.add('hidden');
+      }
+    }
+
+    function renderAll() {
+      renderBadges();
+      renderTransactionsSection(false);
+      renderTransactionsSection(true);
+      renderNotesSection();
+      renderA4Report();
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('viewActive').classList.toggle('hidden', tab !== 'active');
+      document.getElementById('viewArchive').classList.toggle('hidden', tab !== 'archive');
+      document.getElementById('viewNotes').classList.toggle('hidden', tab !== 'notes');
+      document.getElementById('viewReport').classList.toggle('hidden', tab !== 'report');
+      document.getElementById('filterBar').classList.toggle('hidden', tab === 'notes');
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        const active = btn.getAttribute('data-tab') === tab;
+        btn.className = active
+          ? 'tab-btn flex items-center justify-center gap-1.5 py-2.5 px-2 sm:px-4 text-xs sm:text-sm font-bold border-b-2 border-white text-white bg-white/10 rounded-t-lg transition'
+          : 'tab-btn flex items-center justify-center gap-1.5 py-2.5 px-2 sm:px-4 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-navy-100 hover:text-white rounded-t-lg transition';
+      });
+    }
+
+    function openAddModal() {
+      document.getElementById('modalFormTitle').textContent = 'إضافة معاملة جديدة';
+      document.getElementById('editIndex').value = '-1';
+      document.getElementById('inputTxNumber').value = '';
+      document.getElementById('inputTxDate').value = '';
+      document.getElementById('inputTxDept').value = 'قسم الاتصالات الإدارية';
+      document.getElementById('inputTxAction').value = '';
+      document.getElementById('inputTxEmployee').value = 'عبدالرحمن الغامدي';
+      document.getElementById('modalTxForm').classList.remove('hidden');
+      setTimeout(() => document.getElementById('inputTxNumber').focus(), 50);
+    }
+
+    function openEditModal(idx) {
+      const tx = transactions[idx];
+      if (!tx) return;
+      document.getElementById('modalFormTitle').textContent = 'تعديل المعاملة';
+      document.getElementById('editIndex').value = String(idx);
+      document.getElementById('inputTxNumber').value = tx.txNumber;
+      document.getElementById('inputTxDate').value = tx.date;
+      document.getElementById('inputTxDept').value = tx.dept;
+      document.getElementById('inputTxAction').value = tx.actionTaken;
+      document.getElementById('inputTxEmployee').value = tx.employee;
+      document.getElementById('modalTxForm').classList.remove('hidden');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadData();
+      renderAll();
+
+      // Tabs
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
+      });
+
+      // Filters
+      document.getElementById('searchInput').addEventListener('input', renderAll);
+      document.getElementById('filterDept').addEventListener('change', renderAll);
+      document.getElementById('filterEmployee').addEventListener('change', renderAll);
+      document.getElementById('reportScopeSelect').addEventListener('change', renderA4Report);
+
+      // Transaction Modal
+      document.getElementById('btnOpenAddModal').addEventListener('click', openAddModal);
+      document.getElementById('btnCloseModal').addEventListener('click', () => document.getElementById('modalTxForm').classList.add('hidden'));
+      document.getElementById('btnCancelModal').addEventListener('click', () => document.getElementById('modalTxForm').classList.add('hidden'));
+
+      document.getElementById('txForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const idx = parseInt(document.getElementById('editIndex').value, 10);
+        const item = {
+          txNumber: document.getElementById('inputTxNumber').value.trim(),
+          date: document.getElementById('inputTxDate').value.trim(),
+          dept: document.getElementById('inputTxDept').value,
+          actionTaken: document.getElementById('inputTxAction').value.trim(),
+          employee: document.getElementById('inputTxEmployee').value,
+          archived: idx >= 0 && transactions[idx] ? transactions[idx].archived : false
+        };
+
+        if (idx >= 0 && transactions[idx]) {
+          transactions[idx] = item;
+          showToast('تم تعديل المعاملة');
+        } else {
+          transactions.unshift(item);
+          showToast('تمت إضافة المعاملة');
+        }
+
+        saveData();
+        document.getElementById('modalTxForm').classList.add('hidden');
+        renderAll();
+      });
+
+      // Simple Notes Modal
+      const notesModal = document.getElementById('modalNotes');
+      document.getElementById('btnOpenNotesModal').addEventListener('click', () => {
+        document.getElementById('inputNoteText').value = '';
+        document.getElementById('inputNoteAuthor').value = 'عبدالرحمن الغامدي';
+        notesModal.classList.remove('hidden');
+        setTimeout(() => document.getElementById('inputNoteText').focus(), 50);
+      });
+      document.getElementById('btnCloseNotesModal').addEventListener('click', () => notesModal.classList.add('hidden'));
+      document.getElementById('btnCancelNotesModal').addEventListener('click', () => notesModal.classList.add('hidden'));
+
+      document.getElementById('notesForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = document.getElementById('inputNoteText').value.trim();
+        const author = document.getElementById('inputNoteAuthor').value;
+        if (!text) return;
+
+        notesList.unshift({ text, author });
+        saveData();
+        notesModal.classList.add('hidden');
+        switchTab('notes');
+        renderAll();
+        showToast('تمت إضافة الملاحظة');
+      });
+
+      // Delegated clicks for Transactions & Notes
+      document.body.addEventListener('click', (e) => {
+        const txBtn = e.target.closest('[data-tx-action]');
+        if (txBtn) {
+          const action = txBtn.getAttribute('data-tx-action');
+          const idx = parseInt(txBtn.getAttribute('data-idx'), 10);
+          if (!transactions[idx]) return;
+
+          if (action === 'edit') {
+            openEditModal(idx);
+          } else if (action === 'archive') {
+            transactions[idx].archived = true;
+            saveData();
+            renderAll();
+            showToast('تم الحفظ في الأرشيف');
+          } else if (action === 'restore') {
+            transactions[idx].archived = false;
+            saveData();
+            renderAll();
+            showToast('تم الاسترجاع للمعاملات الجارية');
+          } else if (action === 'delete') {
+            transactions.splice(idx, 1);
+            saveData();
+            renderAll();
+            showToast('تم الحذف');
+          }
+          return;
+        }
+
+        const noteDelBtn = e.target.closest('[data-note-delete]');
+        if (noteDelBtn) {
+          const nIdx = parseInt(noteDelBtn.getAttribute('data-note-delete'), 10);
+          notesList.splice(nIdx, 1);
+          saveData();
+          renderAll();
+          showToast('تم حذف الملاحظة');
+        }
+      });
+
+      // Print A4
+      const triggerPrint = () => {
+        switchTab('report');
+        renderA4Report();
+        setTimeout(() => window.print(), 150);
+      };
+      document.getElementById('btnQuickPrintA4').addEventListener('click', triggerPrint);
+      document.getElementById('btnQuickPrintMobile').addEventListener('click', triggerPrint);
+      document.getElementById('btnTriggerBrowserPrint').addEventListener('click', () => window.print());
+
+      // Share Modal
+      const shareModal = document.getElementById('modalShareData');
+      document.getElementById('btnOpenShareModal').addEventListener('click', () => shareModal.classList.remove('hidden'));
+      document.getElementById('btnOpenShareMobile').addEventListener('click', () => shareModal.classList.remove('hidden'));
+      document.getElementById('btnCloseShareModal').addEventListener('click', () => shareModal.classList.add('hidden'));
+
+      document.getElementById('btnDownloadAppWithData').addEventListener('click', () => {
+        const fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        const payload = JSON.stringify({ transactions, notesList }, null, 2);
+        const embeddedBlock = '/*__EMBEDDED_DATA_START__*/\n    const EMBEDDED_STATE = ' + payload + ';\n    /*__EMBEDDED_DATA_END__*/';
+        const updatedHtml = fullHtml
+          .replace(/\/\*__EMBEDDED_DATA_START__\*\/[\s\S]*?\/\*__EMBEDDED_DATA_END__\*\//, embeddedBlock)
+          .replace(/navy_clean_tx_v\d+/, 'navy_clean_tx_' + Date.now());
+
+        const blob = new Blob([updatedHtml], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'الاتصالات_الإدارية.html';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast('تم تنزيل الصفحة مع البيانات');
+      });
+
+      document.getElementById('btnCopySyncCode').addEventListener('click', () => {
+        const code = encodeStateBase64({ transactions, notesList });
+        const ta = document.createElement('textarea');
+        ta.value = code;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        ta.remove();
+        showToast('تم نسخ كود البيانات');
+      });
+
+      document.getElementById('btnApplySyncCode').addEventListener('click', () => {
+        const raw = document.getElementById('inputPasteSyncCode').value.trim();
+        if (!raw) return;
+        try {
+          const decoded = decodeStateBase64(raw);
+          if (decoded && typeof decoded === 'object') {
+            transactions = Array.isArray(decoded.transactions) ? decoded.transactions : [];
+            notesList = Array.isArray(decoded.notesList) ? decoded.notesList : [];
+            saveData();
+            renderAll();
+            document.getElementById('inputPasteSyncCode').value = '';
+            shareModal.classList.add('hidden');
+            showToast('تم تحديث البيانات بنجاح');
+          }
+        } catch (e) {
+          showToast('كود غير صالح');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
